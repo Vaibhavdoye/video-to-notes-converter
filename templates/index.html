@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video to Notes Converter</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 860px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .navbar {
+            background: #5b46b2;
+            color: #ffffff;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .nav-links a {
+            color: #e0dcf4;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+        }
+
+        .card-box {
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .row-top {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .row-bottom {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 650px) {
+            .row-bottom {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .box {
+            border: 2px solid #5b46b2;
+            border-radius: 14px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 125px;
+            background: #ffffff;
+        }
+
+        .upload-box {
+            cursor: pointer;
+            border-style: dashed;
+            background: #faf9fe;
+            transition: all 0.2s ease;
+        }
+
+        .upload-box:hover {
+            background: #f1edfc;
+        }
+
+        .btn-process {
+            background-color: #5b46b2;
+            color: #ffffff;
+            cursor: pointer;
+            border: none;
+            flex-direction: row;
+            gap: 12px;
+            transition: 0.2s;
+        }
+
+        .btn-process:disabled {
+            background-color: #a89fd4;
+            cursor: not-allowed;
+        }
+
+        .progress-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 14px;
+            background: #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            width: 0%;
+            height: 100%;
+            background: #5b46b2;
+            transition: width 0.4s ease;
+        }
+
+        .notes-box {
+            align-items: flex-start;
+            padding: 16px;
+            text-align: left;
+        }
+
+        .notes-header {
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-size: 0.95rem;
+        }
+
+        .notes-box textarea {
+            width: 100%;
+            height: 155px;
+            border: none;
+            resize: none;
+            outline: none;
+            color: #333333;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            background: transparent;
+        }
+
+        .btn-download {
+            background-color: #10a37f;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-download:disabled {
+            background-color: #92d0c1;
+            cursor: not-allowed;
+        }
+
+        .icon, .play-icon, .download-icon {
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+
+        .sub-text {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+
+        .btn-download .sub-text {
+            color: #e6f7f2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="navbar">
+            <h2 class="logo">Video to Notes Converter</h2>
+            <nav class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Upload</a>
+                <a href="#">My Notes</a>
+            </nav>
+        </header>
+
+        <main class="card-box">
+            <div class="row-top">
+                <div class="box upload-box" onclick="document.getElementById('videoInput').click()">
+                    <span class="icon">🎬</span>
+                    <strong>UPLOAD VIDEO</strong>
+                    <p class="sub-text">Drag & Drop / Browse</p>
+                    <input type="file" id="videoInput" accept="video/*" style="display: none;">
+                </div>
+
+                <div class="box selected-box">
+                    <span class="icon">📁</span>
+                    <strong>SELECTED FILE</strong>
+                    <p id="fileNameText" style="font-size: 0.9rem; margin-top: 4px; word-break: break-all;">No file chosen</p>
+                    <span id="fileSizeText" class="sub-text">-</span>
+                </div>
+
+                <button class="box btn-process" id="processBtn" disabled>
+                    <span class="play-icon">▶</span>
+                    <div>
+                        <strong>PROCESS VIDEO</strong>
+                        <p class="sub-text" style="color: #eae5ff;">Start Conversion</p>
+                    </div>
+                </button>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-labels">
+                    <span>Processing Progress</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="row-bottom">
+                <div class="box notes-box">
+                    <div class="notes-header">📝 GENERATED NOTES</div>
+                    <textarea id="notesArea" placeholder="• Introduction&#10;• Key Highlights&#10;• Important Points&#10;• Summary" readonly></textarea>
+                </div>
+
+                <button class="box btn-download" id="downloadBtn" disabled>
+                    <span class="download-icon">⬇</span>
+                    <div>
+                        <strong>DOWNLOAD NOTES</strong>
+                        <p style="font-weight: 600; font-size: 0.85rem; margin-top: 3px;">PDF / TXT</p>
+                        <span class="sub-text">Save for Revision</span>
+                    </div>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const videoInput = document.getElementById('videoInput');
+        const fileNameText = document.getElementById('fileNameText');
+        const fileSizeText = document.getElementById('fileSizeText');
+        const processBtn = document.getElementById('processBtn');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const notesArea = document.getElementById('notesArea');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let selectedFile = null;
+
+        videoInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                fileNameText.innerText = selectedFile.name;
+                fileSizeText.innerText = (selectedFile.size / (1024 * 1024)).toFixed(2) + " MB";
+                processBtn.disabled = false;
+                notesArea.value = "Video select ho chuki hai. 'Process Video' par click karein.";
+            }
+        });
+
+        processBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            processBtn.disabled = true;
+            downloadBtn.disabled = true;
+            notesArea.value = "Processing shuru ho gayi hai...\n1. Video se audio extract ho rahi hai.\n2. Speech-to-Text se bole gaye shabd translate ho rahe hain.\n3. Key highlights aur points summarize ho rahe hain...";
+
+            progressFill.style.width = "30%";
+            progressPercent.innerText = "30%";
+
+            const formData = new FormData();
+            formData.append('video', selectedFile);
+
+            let progress = 30;
+            const timer = setInterval(() => {
+                if (progress < 85) {
+                    progress += 10;
+                    progressFill.style.width = progress + "%";
+                    progressPercent.innerText = progress + "%";
+                }
+            }, 2500);
+
+            try {
+                const response = await fetch('/process-video', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(timer);
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    progressFill.style.width = "100%";
+                    progressPercent.innerText = "100%";
+                    notesArea.value = data.notes;
+                    downloadBtn.disabled = false;
+                } else {
+                    progressFill.style.width = "0%";
+                    progressPercent.innerText = "0%";
+                    notesArea.value = "Error: " + (data.error || "Video process nahi ho paayi");
+                }
+            } catch (err) {
+                clearInterval(timer);
+                progressFill.style.width = "0%";
+                progressPercent.innerText = "0%";
+                notesArea.value = "Server Connection Error: Terminal me python app.py running hona chahiye.";
+            } finally {
+                processBtn.disabled = false;
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!notesArea.value) return;
+
+            const blob = new Blob([notesArea.value], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${selectedFile ? selectedFile.name.split('.')[0] : 'lecture'}_notes.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+</html>
